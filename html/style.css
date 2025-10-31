@@ -1,0 +1,75 @@
+html {
+  scroll-behavior: smooth;
+}
+
+.nav-link {
+  color: #e2e8f0;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+.nav-link:hover {
+  color: #22d3ee;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #22d3ee;
+  position: relative;
+}
+.section-title::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: #22d3ee;
+  margin: 10px auto;
+}
+
+.skill-card {
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 10px;
+  padding: 20px;
+  transition: transform 0.3s;
+}
+.skill-card:hover {
+  transform: translateY(-5px);
+  border-color: #22d3ee;
+}
+
+.project-card {
+  background: #111827;
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid #1f2937;
+  transition: transform 0.3s;
+}
+.project-card:hover {
+  transform: scale(1.03);
+  border-color: #22d3ee;
+}
+
+.social-link {
+  color: #22d3ee;
+  border: 1px solid #22d3ee;
+  padding: 8px 20px;
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+.social-link:hover {
+  background: #22d3ee;
+  color: #000;
+}
+
+/* Fade-in Animation */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 1s ease-out;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
