@@ -1,5 +1,4 @@
-# File: .github/workflows/deploy-ec2.yml
-name: Deploy Portfolio to EC2
+name: Deploy Portfolio to EC2 (No DockerHub)
 
 on:
   push:
@@ -11,25 +10,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout the repository
-    - name: Checkout Repository
-      uses: actions/checkout@v3
+      - name: Deploy on EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~
+            if [ ! -d "Vishal-Portfolio" ]; then
+              git clone https://github.com/Vishal758168/.git
+            fi
 
-    # Step 2: Setup SSH key
-    - name: Setup SSH key
-      run: |
-        echo "${{ secrets.EC2_KEY }}" > ec2_key.pem
-        chmod 600 ec2_key.pem
+            cd Vishal-Portfolio
+            git pull origin main
 
-    # Step 3: Deploy on EC2
-    - name: Deploy on EC2
-      run: |
-        ssh -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          cd /home/ubuntu/portfolio
-          git reset --hard
-          git pull origin main
-          docker build -t portfolio:latest .
-          docker stop portfolio || true
-          docker rm portfolio || true
-          docker run -d --name portfolio -p 80:80 portfolio:latest
-        EOF
+            sudo docker stop portfolio || true
+            sudo docker rm portfolio || true
+            sudo docker rmi portfolio:latest || true
+
+            sudo docker build -t portfolio:latest .
+            sudo docker run -d --name portfolio -p 80:80 portfolio:latest
