@@ -21,7 +21,7 @@ jobs:
         key: ${{ secrets.EC2_KEY }}
         port: 22
         script: |
-          cd /home/ubuntu/portfolio
+          cd /home/ubuntu/portfolio/Vishal-Portfolio
           git reset --hard
           git pull origin main
           docker build -t portfolio:latest .
