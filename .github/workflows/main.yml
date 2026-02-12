@@ -17,16 +17,32 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd ~
-            if [ ! -d "Vishal-Portfolio" ]; then
-              git clone https://github.com/Vishal758168/Vishal-Portfolio.git
+           cd ~
 
-            fi
+           if [ ! -d "Vishal-Portfolio" ]; then
+           git clone https://github.com/Vishal758168/Vishal-Portfolio.git
+           fi
 
-            cd Vishal-Portfolio
-            git pull origin main
+           cd Vishal-Portfolio
+           git pull origin main
 
-            sudo docker stop portfolio || true
+  # Stop & remove old container safely
+       sudo docker ps -aq --filter "name=portfolio" | xargs -r sudo docker stop
+       sudo docker ps -aq --filter "name=portfolio" | xargs -r sudo docker rm
+
+  # Free port 80 (if any container is using it)
+       sudo docker ps -aq --filter "publish=80" | xargs -r sudo docker stop
+       sudo docker ps -aq --filter "publish=80" | xargs -r sudo docker rm
+
+  # Remove old image
+       sudo docker rmi -f portfolio:latest || true
+
+  # Build fresh
+       sudo docker build --no-cache -t portfolio:latest .
+
+  # Run new container
+       sudo docker run -d --restart always --name portfolio -p 80:80 portfolio:latest
+
             sudo docker rm portfolio || true
             sudo docker rmi portfolio:latest || true
 
