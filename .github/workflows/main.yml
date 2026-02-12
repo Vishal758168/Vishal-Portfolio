@@ -1,5 +1,5 @@
-# File: .github/workflows/simple-pipeline.yml
-name: Simple CI Pipeline
+# File: .github/workflows/deploy-ec2.yml
+name: Deploy to EC2
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
       - master
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,6 +16,28 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v3
 
-    # Step 2: Build Docker image
-    - name: Build Docker Image
-      run: docker build -t portfolio:latest .
+    # Step 2: Copy files to EC2 via SSH
+    - name: Copy Files to EC2
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_KEY }}
+        port: 22
+        source: "."
+        target: "/home/ubuntu/portfolio"
+
+    # Step 3: Run commands on EC2 (optional: build Docker or restart app)
+    - name: Run Commands on EC2
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_KEY }}
+        port: 22
+        script: |
+          cd /home/ubuntu/portfolio
+          docker build -t portfolio:latest .
+          docker stop portfolio || true
+          docker rm portfolio || true
+          docker run -d --name portfolio -p 80:80 portfolio:latest
