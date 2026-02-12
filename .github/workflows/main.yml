@@ -12,32 +12,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout the repo
+    # Step 1: Checkout repository
     - name: Checkout Repository
       uses: actions/checkout@v3
 
-    # Step 2: Copy files to EC2 via SSH
-    - name: Copy Files to EC2
+    # Step 2: Deploy via SSH
+    - name: Copy and Deploy to EC2
       uses: appleboy/ssh-action@v0.1.6
       with:
         host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_KEY }}
-        port: 22
-        source: "."
-        target: "/home/ubuntu/portfolio"
-
-    # Step 3: Run commands on EC2 (optional: build Docker or restart app)
-    - name: Run Commands on EC2
-      uses: appleboy/ssh-action@v0.1.6
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
+        username: ubuntu
         key: ${{ secrets.EC2_KEY }}
         port: 22
         script: |
+          # Make sure deployment directory exists
+          mkdir -p /home/ubuntu/portfolio
+
+          # Copy files from GitHub runner to EC2
+          rsync -avz --delete ./ /home/ubuntu/portfolio/
+
+          # Build and run Docker container
           cd /home/ubuntu/portfolio
           docker build -t portfolio:latest .
           docker stop portfolio || true
           docker rm portfolio || true
           docker run -d --name portfolio -p 80:80 portfolio:latest
+
