@@ -1,4 +1,4 @@
-# File: .github/workflows/deploy-ec2-no-secrets.yml
+# File: .github/workflows/deploy-ec2.yml
 name: Deploy Portfolio to EC2
 
 on:
@@ -11,9 +11,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # Step 1: Checkout the repository
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    # Step 2: Setup SSH key
+    - name: Setup SSH key
+      run: |
+        echo "${{ secrets.EC2_KEY }}" > ec2_key.pem
+        chmod 600 ec2_key.pem
+
+    # Step 3: Deploy on EC2
     - name: Deploy on EC2
       run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@13.126.244.205 << 'EOF'
+        ssh -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
           cd /home/ubuntu/portfolio
           git reset --hard
           git pull origin main
