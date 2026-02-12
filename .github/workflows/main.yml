@@ -19,7 +19,7 @@ jobs:
           script: |
             cd ~
             if [ ! -d "Vishal-Portfolio" ]; then
-              git clone https://github.com/Vishal758168/.git
+              git clone https://github.com/Vishal758168/https://github.com/Vishal758168/Vishal-Portfolio.git
             fi
 
             cd Vishal-Portfolio
