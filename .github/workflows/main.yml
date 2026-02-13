@@ -14,7 +14,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2️⃣ Build Docker image (optional)
+      # 2️⃣ Build Docker image on GitHub runner (optional)
       - name: Build Docker image
         run: docker build -t vishal-portfolio .
 
@@ -27,8 +27,11 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           port: 22
           script: |
-            sudo docker pull vishal-portfolio || echo "Image not found, building..."
+            cd ~/Vishal-Portfolio
+            # Build Docker image locally on EC2
+            sudo docker build -t vishal-portfolio .
+            # Stop and remove old container if exists
             sudo docker stop portfolio || true
             sudo docker rm portfolio || true
+            # Run new container
             sudo docker run -d --name portfolio -p 80:80 vishal-portfolio
-
